@@ -29,8 +29,8 @@ const useUpdateBook = () => {
   const queryClient = useQueryClient();
 
   const { mutateAsync } = useMutation({
-    mutationFn: async ({ dataForm, id }) => {
-      const { data, status } = await bookAPI.put(`/book/${id}`, dataForm);
+    mutationFn: async ({ formData, id }) => {
+      const { data, status } = await bookAPI.put(`/book/${id}`, formData);
       return { data, status };
     },
     onSuccess: () => {
@@ -42,4 +42,44 @@ const useUpdateBook = () => {
   return { mutateAsync };
 };
 
-export const useBook = () => ({ useGetAllBooks, useGetBook, useUpdateBook });
+const useCreateBook = () => {
+  const queryClient = useQueryClient();
+
+  const { mutateAsync } = useMutation({
+    mutationFn: async (dataForm) => {
+      const { data, status } = await bookAPI.post("/book", dataForm);
+      return { data, status };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getAllBooks"] });
+      queryClient.invalidateQueries({ queryKey: ["getBook"] });
+    },
+  });
+
+  return { mutateAsync };
+};
+
+const useDeleteBook = () => {
+  const queryClient = useQueryClient();
+
+  const { mutateAsync } = useMutation({
+    mutationFn: async (id) => {
+      const { data, status } = await bookAPI.delete(`/book/${id}`);
+      return { data, status };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getAllBooks"] });
+      queryClient.invalidateQueries({ queryKey: ["getBook"] });
+    },
+  });
+
+  return { mutateAsync };
+};
+
+export const useBook = () => ({
+  useGetAllBooks,
+  useGetBook,
+  useUpdateBook,
+  useCreateBook,
+  useDeleteBook,
+});
